@@ -4,24 +4,17 @@ import EntryForm from './components/EntryForm';
 import ReportSheet from './components/ReportSheet';
 import Dashboard from './components/Dashboard';
 import { getReportForDate } from './services/storageService';
-import { ClipboardList, BarChart3, PlusCircle, Settings, X, ArrowRight, ChefHat, Sparkles, Loader2 } from 'lucide-react';
+import { ClipboardList, BarChart3, PlusCircle, ArrowRight, ChefHat, Loader2 } from 'lucide-react';
 
 const App: React.FC = () => {
   const [hasEntered, setHasEntered] = useState(false);
   const [view, setView] = useState<ViewState>('form');
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
-  const [apiKey, setApiKey] = useState('');
-  const [showSettings, setShowSettings] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   
   // Async State
   const [currentReport, setCurrentReport] = useState<DailyReport | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-     const storedKey = localStorage.getItem('gemini_api_key');
-     if (storedKey) setApiKey(storedKey);
-  }, []);
 
   // Fetch report when date or refresh trigger changes
   useEffect(() => {
@@ -40,12 +33,6 @@ const App: React.FC = () => {
     };
     fetchData();
   }, [selectedDate, refreshTrigger, hasEntered]);
-
-  const saveApiKey = (key: string) => {
-      setApiKey(key);
-      localStorage.setItem('gemini_api_key', key);
-      setShowSettings(false);
-  };
 
   const handleEnterApp = () => {
       setHasEntered(true);
@@ -69,9 +56,6 @@ const App: React.FC = () => {
           <div className="mb-10 relative">
               <div className="bg-blue-600 p-8 rounded-[40px] shadow-2xl shadow-blue-200 rotate-6 transform transition-all hover:rotate-0 duration-500">
                  <ChefHat className="text-white w-20 h-20" />
-              </div>
-              <div className="absolute -bottom-4 -right-4 bg-amber-400 p-4 rounded-full shadow-lg border-4 border-white animate-bounce">
-                 <Sparkles className="text-white w-6 h-6" />
               </div>
           </div>
           
@@ -119,10 +103,6 @@ const App: React.FC = () => {
                  style={{ colorScheme: 'light' }}
                />
            </div>
-
-           <button onClick={() => setShowSettings(true)} className="w-11 h-11 flex items-center justify-center text-slate-400 hover:text-slate-900 bg-white rounded-2xl border border-slate-100 shadow-sm transition-all">
-               <Settings size={18} />
-           </button>
         </div>
       </header>
 
@@ -149,7 +129,6 @@ const App: React.FC = () => {
                 <ReportSheet 
                     key={`${selectedDate}-${refreshTrigger}`}
                     report={currentReport} 
-                    apiKey={apiKey}
                 />
                 )}
 
@@ -184,28 +163,6 @@ const App: React.FC = () => {
               </button>
           ))}
       </nav>
-
-      {/* Settings Modal */}
-      {showSettings && (
-          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
-              <div className="bg-white rounded-[40px] shadow-2xl max-w-md w-full p-8 relative animate-scale-in">
-                  <button onClick={() => setShowSettings(false)} className="absolute top-6 right-6 text-slate-300 hover:text-slate-900"><X /></button>
-                  <h3 className="text-2xl font-black mb-6 uppercase tracking-tight">App Configuration</h3>
-                  <div className="mb-8">
-                      <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Gemini API Key</label>
-                      <input 
-                        type="password" 
-                        value={apiKey} 
-                        onChange={(e) => setApiKey(e.target.value)}
-                        placeholder="Paste Key here..."
-                        className="w-full border-2 border-slate-100 bg-slate-50 p-4 rounded-3xl font-mono text-sm outline-none focus:border-blue-500 transition-all"
-                      />
-                      <p className="text-[10px] text-slate-400 mt-3 font-medium">This key is used only for AI-powered quality trend summaries.</p>
-                  </div>
-                  <button onClick={() => saveApiKey(apiKey)} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-3xl font-black text-lg shadow-xl shadow-blue-100 transition-all active:scale-95">Update Settings</button>
-              </div>
-          </div>
-      )}
     </div>
   );
 };

@@ -7,7 +7,6 @@ import { INITIAL_INSPECTOR } from '../constants';
 
 interface ReportSheetProps {
   report: DailyReport;
-  apiKey?: string;
 }
 
 const ReportSheet: React.FC<ReportSheetProps> = ({ report }) => {
