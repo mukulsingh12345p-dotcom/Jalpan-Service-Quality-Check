@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from 'react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
@@ -135,10 +134,10 @@ const ReportSheet: React.FC<ReportSheetProps> = ({ report }) => {
 
   const renderStatusSymbol = (status: Status) => {
     switch(status) {
-        case Status.PERFECT: return <span className="text-amber-500 font-bold whitespace-nowrap">PERFECT 🌟</span>;
-        case Status.GOOD: return <span className="text-blue-600 font-bold whitespace-nowrap">GOOD ✅</span>;
-        case Status.NOT_GOOD: return <span className="text-red-600 font-bold whitespace-nowrap">NOT GOOD ❌</span>;
-        default: return <span className="text-slate-300 font-bold whitespace-nowrap">PENDING</span>;
+        case Status.PERFECT: return <span className="text-amber-600 font-semibold whitespace-nowrap">Perfect 🌟</span>;
+        case Status.GOOD: return <span className="text-blue-700 font-semibold whitespace-nowrap">Good ✅</span>;
+        case Status.NOT_GOOD: return <span className="text-red-700 font-semibold whitespace-nowrap">Not Good ❌</span>;
+        default: return <span className="text-slate-300 font-semibold whitespace-nowrap">Pending</span>;
     }
   };
 
@@ -170,101 +169,105 @@ const ReportSheet: React.FC<ReportSheetProps> = ({ report }) => {
           <div
             ref={sheetRef}
             id="report-capture-area"
-            className="bg-white p-12 shadow-sm border border-slate-100 mx-auto text-slate-900 overflow-hidden text-[13px]"
+            className="bg-white p-16 shadow-sm border border-slate-100 mx-auto text-slate-800 overflow-hidden text-[15px] report-font leading-relaxed"
             style={{ width: '800px', minWidth: '800px' }}
           >
             {/* Header Section */}
-            <div className="mb-8 border-b-2 border-slate-100 pb-4">
-              <p className="text-[10px] italic text-slate-500 mb-6 leading-none">
-                With the blessings of H.H. Sant Rajinder Singh Ji Maharaj, Jalpan Services Quality Group, presents the quality report for {formattedDate}
+            <div className="mb-10 border-b border-slate-200 pb-6">
+              <p className="text-[11px] italic text-slate-400 mb-8 leading-none tracking-wide">
+                With the blessings of H.H. Sant Rajinder Singh Ji Maharaj, Jalpan Services Quality Group presents the quality report for {formattedDate}
               </p>
-              <h1 className="text-3xl font-bold text-[#2D3E7B] mb-1">Jalpan Services Quality report</h1>
-              <p className="text-lg text-slate-500 font-medium tracking-tight">Quality Report Summary</p>
+              <h1 className="text-4xl font-semibold text-[#1a2652] mb-2 report-ui-font tracking-tight">Jalpan Services Quality Report</h1>
+              <p className="text-xl text-slate-500 font-normal italic tracking-normal">Comprehensive Quality Summary</p>
             </div>
 
             {/* 1. Duty Overview */}
-            <div className="mb-8">
-              <h2 className="text-[14px] font-bold mb-3">1. Inspection Overview</h2>
+            <div className="mb-10">
+              <h2 className="text-[16px] font-semibold mb-4 text-[#1a2652] uppercase tracking-wider report-ui-font">1. Inspection Overview</h2>
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-[#2D3E7B] text-white">
-                    <th className="py-2.5 px-4 text-left border border-slate-200 font-bold w-1/3">Metric</th>
-                    <th className="py-2.5 px-4 text-left border border-slate-200 font-bold">Details</th>
+                    <th className="py-3 px-5 text-left border border-[#2D3E7B] font-medium w-1/3 report-ui-font">Metric</th>
+                    <th className="py-3 px-5 text-left border border-[#2D3E7B] font-medium report-ui-font">Details</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td className="py-2.5 px-4 border border-slate-200 font-medium bg-slate-50/50">Reporting Quality Group</td>
-                    <td className="py-2.5 px-4 border border-slate-200 font-semibold uppercase">Jalpan Services</td>
+                    <td className="py-3 px-5 border border-slate-200 font-medium bg-slate-50/50">Reporting Quality Group</td>
+                    <td className="py-3 px-5 border border-slate-200 font-medium text-[#1a2652]">Jalpan Services</td>
                   </tr>
                   <tr>
-                    <td className="py-2.5 px-4 border border-slate-200 font-medium bg-slate-50/50">Sewadar on Duty</td>
-                    <td className="py-2.5 px-4 border border-slate-200 font-bold uppercase">{inspectorName}</td>
+                    <td className="py-3 px-5 border border-slate-200 font-medium bg-slate-50/50">Sewadar on Duty</td>
+                    <td className="py-3 px-5 border border-slate-200 font-semibold text-[#1a2652]">{inspectorName}</td>
                   </tr>
                   <tr>
-                    <td className="py-2.5 px-4 border border-slate-200 font-medium bg-slate-50/50">Location Covered</td>
-                    <td className="py-2.5 px-4 border border-slate-200">Canteen, Kirpal Bagh</td>
+                    <td className="py-3 px-5 border border-slate-200 font-medium bg-slate-50/50">Inspection Date</td>
+                    <td className="py-3 px-5 border border-slate-200 font-semibold text-[#1a2652]">{formattedDate}</td>
                   </tr>
                   <tr>
-                    <td className="py-2.5 px-4 border border-slate-200 font-medium bg-slate-50/50">Inspection Timing</td>
-                    <td className="py-2.5 px-4 border border-slate-200 font-semibold uppercase">{report.completionTime || '--:--'}</td>
+                    <td className="py-3 px-5 border border-slate-200 font-medium bg-slate-50/50">Location Covered</td>
+                    <td className="py-3 px-5 border border-slate-200">Canteen, Kirpal Bagh</td>
+                  </tr>
+                  <tr>
+                    <td className="py-3 px-5 border border-slate-200 font-medium bg-slate-50/50">Inspection Timing</td>
+                    <td className="py-3 px-5 border border-slate-200 font-medium text-[#1a2652]">{report.completionTime || '--:--'}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
             {/* 2. Rating Distribution */}
-            <div className="mb-8">
-              <h2 className="text-[14px] font-bold mb-3">2. Rating Distribution</h2>
+            <div className="mb-10">
+              <h2 className="text-[16px] font-semibold mb-4 text-[#1a2652] uppercase tracking-wider report-ui-font">2. Rating Distribution</h2>
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-[#4155B1] text-white">
-                    <th className="py-2.5 px-4 text-left border border-slate-200 font-bold">Rating Level</th>
-                    <th className="py-2.5 px-4 text-left border border-slate-200 font-bold">Description</th>
-                    <th className="py-2.5 px-4 text-left border border-slate-200 font-bold">Item Count</th>
+                    <th className="py-3 px-5 text-left border border-[#4155B1] font-medium report-ui-font">Rating Level</th>
+                    <th className="py-3 px-5 text-left border border-[#4155B1] font-medium report-ui-font">Description</th>
+                    <th className="py-3 px-5 text-left border border-[#4155B1] font-medium report-ui-font">Item Count</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td className="py-2.5 px-4 border border-slate-200 font-bold text-amber-600">Perfect 🌟</td>
-                    <td className="py-2.5 px-4 border border-slate-200 italic">Exceptional quality and hygiene</td>
-                    <td className="py-2.5 px-4 border border-slate-200 font-bold">{perfectCount}</td>
+                    <td className="py-3 px-5 border border-slate-200 font-semibold text-amber-700">Perfect 🌟</td>
+                    <td className="py-3 px-5 border border-slate-200 italic text-slate-600">Exceptional quality and hygiene</td>
+                    <td className="py-3 px-5 border border-slate-200 font-bold">{perfectCount}</td>
                   </tr>
                   <tr>
-                    <td className="py-2.5 px-4 border border-slate-200 font-bold text-blue-600">Good ✅</td>
-                    <td className="py-2.5 px-4 border border-slate-200 italic">Standard parameters satisfied</td>
-                    <td className="py-2.5 px-4 border border-slate-200 font-bold">{goodCount}</td>
+                    <td className="py-3 px-5 border border-slate-200 font-semibold text-blue-800">Good ✅</td>
+                    <td className="py-3 px-5 border border-slate-200 italic text-slate-600">Standard parameters satisfied</td>
+                    <td className="py-3 px-5 border border-slate-200 font-bold">{goodCount}</td>
                   </tr>
                   <tr>
-                    <td className="py-2.5 px-4 border border-slate-200 font-bold text-red-600">Not Good ❌</td>
-                    <td className="py-2.5 px-4 border border-slate-200 italic">Requires immediate corrective action</td>
-                    <td className="py-2.5 px-4 border border-slate-200 font-bold text-red-600">{notGoodCount}</td>
+                    <td className="py-3 px-5 border border-slate-200 font-semibold text-red-800">Not Good ❌</td>
+                    <td className="py-3 px-5 border border-slate-200 italic text-slate-600">Requires immediate corrective action</td>
+                    <td className="py-3 px-5 border border-slate-200 font-bold text-red-800">{notGoodCount}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
             {/* 3. Detailed Quality Assessment */}
-            <div className="mb-8">
-              <h2 className="text-[14px] font-bold mb-3">3. Detailed Quality Assessment</h2>
-              <table className="w-full border-collapse text-[11.5px]">
+            <div className="mb-10">
+              <h2 className="text-[16px] font-semibold mb-4 text-[#1a2652] uppercase tracking-wider report-ui-font">3. Detailed Quality Assessment</h2>
+              <table className="w-full border-collapse text-[14px]">
                 <thead>
-                  <tr className="bg-[#24A171] text-white">
-                    <th className="py-2.5 px-2 text-left border border-slate-200 font-bold">Category</th>
-                    <th className="py-2.5 px-2 text-left border border-slate-200 font-bold">Specific Item</th>
-                    <th className="py-2.5 px-2 text-left border border-slate-200 font-bold">Incharge</th>
-                    <th className="py-2.5 px-2 text-left border border-slate-200 font-bold">Rating</th>
-                    <th className="py-2.5 px-2 text-left border border-slate-200 font-bold">Remarks</th>
+                  <tr className="bg-[#2a8b66] text-white">
+                    <th className="py-3 px-4 text-left border border-[#2a8b66] font-medium report-ui-font">Category</th>
+                    <th className="py-3 px-4 text-left border border-[#2a8b66] font-medium report-ui-font">Specific Item</th>
+                    <th className="py-3 px-4 text-left border border-[#2a8b66] font-medium report-ui-font">Incharge</th>
+                    <th className="py-3 px-4 text-left border border-[#2a8b66] font-medium report-ui-font">Rating</th>
+                    <th className="py-3 px-4 text-left border border-[#2a8b66] font-medium report-ui-font">Remarks</th>
                   </tr>
                 </thead>
                 <tbody>
                   {report.items.map((item) => (
-                    <tr key={item.id}>
-                      <td className="py-2.5 px-2 border border-slate-200 font-bold uppercase tracking-tight w-[180px]">{item.category}</td>
-                      <td className="py-2.5 px-2 border border-slate-200 font-medium uppercase text-blue-800">{item.subItem || 'N/A'}</td>
-                      <td className="py-2.5 px-2 border border-slate-200 uppercase">{item.counterIncharge || '—'}</td>
-                      <td className="py-2.5 px-2 border border-slate-200">{renderStatusSymbol(item.status)}</td>
-                      <td className="py-2.5 px-2 border border-slate-200 italic text-slate-500">{item.remark || 'Satisfactory'}</td>
+                    <tr key={item.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="py-3 px-4 border border-slate-200 font-semibold text-slate-700 w-[180px]">{item.category}</td>
+                      <td className="py-3 px-4 border border-slate-200 font-medium text-blue-900">{item.subItem || '—'}</td>
+                      <td className="py-3 px-4 border border-slate-200">{item.counterIncharge || '—'}</td>
+                      <td className="py-3 px-4 border border-slate-200">{renderStatusSymbol(item.status)}</td>
+                      <td className="py-3 px-4 border border-slate-200 italic text-slate-500">{item.remark || 'Satisfactory'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -272,19 +275,21 @@ const ReportSheet: React.FC<ReportSheetProps> = ({ report }) => {
             </div>
 
             {/* 4. Corrective Actions */}
-            <div className="mb-10">
-              <h2 className="text-[14px] font-bold mb-3">4. Reported Issues & Corrective Actions</h2>
-              <div className="border border-slate-200 p-6 bg-slate-50/80 min-h-[120px] whitespace-pre-wrap leading-relaxed text-slate-600 italic">
-                {report.actionsTaken || "No major incidents or corrective actions reported during this session. Standard procedures followed."}
+            <div className="mb-12">
+              <h2 className="text-[16px] font-semibold mb-4 text-[#1a2652] uppercase tracking-wider report-ui-font">4. Reported Issues & Corrective Actions</h2>
+              <div className="border border-slate-200 p-8 bg-slate-50/50 min-h-[140px] whitespace-pre-wrap leading-relaxed text-slate-700 italic text-[16px]">
+                {report.actionsTaken || "No major incidents or corrective actions reported during this session. Standard quality protocols were observed and maintained across all counters."}
               </div>
             </div>
 
             {/* Footer Signatories */}
-            <div className="mt-16 flex justify-end">
-              <div className="w-64 text-center border-t border-slate-200 pt-3">
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">AUTHORIZED SIGNATORY</p>
-                <p className="signature-font text-3xl text-[#2D3E7B]">{inspectorName}</p>
-                <p className="text-[10px] text-slate-400 mt-1 font-medium">{formattedDate}</p>
+            <div className="mt-20 flex justify-end">
+              <div className="w-72 text-center">
+                <div className="border-t border-slate-300 pt-4">
+                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.25em] mb-4 report-ui-font">Authorized Signatory</p>
+                  <p className="signature-font text-4xl text-[#1a2652] mb-1">{inspectorName}</p>
+                  <p className="text-[11px] text-slate-400 font-medium italic">Inspection completed at {report.completionTime || '--:--'}</p>
+                </div>
               </div>
             </div>
           </div>
