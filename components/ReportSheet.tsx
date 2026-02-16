@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect } from 'react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
@@ -19,11 +20,15 @@ const ReportSheet: React.FC<ReportSheetProps> = ({ report }) => {
   // Format date from YYYY-MM-DD to DD-MM-YYYY
   const formattedDate = report.date.split('-').reverse().join('-');
 
+  // Summary stats for section 2
+  const perfectCount = report.items.filter(i => i.status === Status.PERFECT).length;
+  const goodCount = report.items.filter(i => i.status === Status.GOOD).length;
+  const notGoodCount = report.items.filter(i => i.status === Status.NOT_GOOD).length;
+
   // Calculate zoom to fit mobile screen
   useEffect(() => {
     const handleResize = () => {
         // 800px is the target width of the sheet. 
-        // We leave 32px padding (16px on each side).
         const availableWidth = window.innerWidth - 32;
         if (availableWidth < 800) {
             setZoom(availableWidth / 800);
@@ -66,13 +71,12 @@ const ReportSheet: React.FC<ReportSheetProps> = ({ report }) => {
         logging: false,
         backgroundColor: '#ffffff',
         width: 800,
-        windowWidth: 800, // Force render width
+        windowWidth: 800, 
         onclone: (clonedDoc) => {
           const clonedElement = clonedDoc.getElementById('report-capture-area');
           if (clonedElement) {
-            // Reset zoom/transform for the PDF capture so it looks full size
             clonedElement.style.transform = 'none';
-            // @ts-ignore - zoom property exists in style but missing in standard types
+            // @ts-ignore
             clonedElement.style.zoom = '1'; 
             clonedElement.style.width = '800px';
             clonedElement.style.margin = '0';
@@ -129,152 +133,163 @@ const ReportSheet: React.FC<ReportSheetProps> = ({ report }) => {
     window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
   };
 
-  const renderStatusBadge = (status: Status) => {
+  const renderStatusSymbol = (status: Status) => {
     switch(status) {
-        case Status.PERFECT:
-            return (
-                <div className="flex items-center justify-center min-w-[70px] py-1.5 px-2 bg-amber-400 text-white font-bold rounded-lg text-[9px] leading-none shadow-sm uppercase tracking-wide gap-1">
-                    <Star size={10} fill="currentColor" /> PERFECT
-                </div>
-            );
-        case Status.GOOD:
-            return (
-                <div className="flex items-center justify-center min-w-[70px] py-1.5 px-2 bg-blue-500 text-white font-bold rounded-lg text-[9px] leading-none shadow-sm uppercase tracking-wide gap-1">
-                    <CheckCircle size={10} /> GOOD
-                </div>
-            );
-        case Status.NOT_GOOD:
-            return (
-                <div className="flex items-center justify-center min-w-[70px] py-1.5 px-2 bg-red-500 text-white font-bold rounded-lg text-[9px] leading-none shadow-sm uppercase tracking-wide gap-1">
-                    <XCircle size={10} /> NOT GOOD
-                </div>
-            );
-        default:
-            return <span className="text-slate-300 font-bold text-[10px] uppercase">PENDING</span>;
+        case Status.PERFECT: return <span className="text-amber-500 font-bold whitespace-nowrap">PERFECT 🌟</span>;
+        case Status.GOOD: return <span className="text-blue-600 font-bold whitespace-nowrap">GOOD ✅</span>;
+        case Status.NOT_GOOD: return <span className="text-red-600 font-bold whitespace-nowrap">NOT GOOD ❌</span>;
+        default: return <span className="text-slate-300 font-bold whitespace-nowrap">PENDING</span>;
     }
   };
 
   return (
     <div className="flex flex-col items-center gap-8 pb-32 view-enter">
 
-      {/* Digital Sheet Visualizer */}
-      {/* We use a scaling wrapper to fit the 800px sheet on mobile */}
-      <div className="w-full flex justify-center">
-        <div style={{ zoom: zoom }} className="origin-top">
-            <div
-            ref={sheetRef}
-            id="report-capture-area"
-            className="bg-white p-8 sm:p-12 shadow-2xl border border-slate-200 mx-auto text-slate-900 overflow-hidden"
-            style={{ width: '800px', minWidth: '800px' }}
-            >
-            {/* Header Section */}
-            <div className="flex flex-col mb-8">
-                <h1 className="text-3xl font-black text-blue-900 leading-tight tracking-tight uppercase">
-                Jalpan Services Quality Check
-                </h1>
-                
-                <div className="flex flex-col items-end mt-4">
-                <div className="bg-blue-900 text-white px-5 py-1.5 text-[10px] font-bold uppercase tracking-widest">
-                    DAILY QUALITY SHEET
-                </div>
-                <p className="text-[9px] font-bold text-slate-400 mt-3 tracking-widest uppercase">
-                    INSPECTED AT: {report.completionTime || 'Not recorded'}
-                </p>
-                <p className="text-2xl font-black border-b-2 border-blue-900 pb-1 mt-1 text-blue-900">
-                    {formattedDate}
-                </p>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-px bg-slate-200 mb-8 border-y-2 border-blue-900">
-                <div className="bg-white p-5 border-l-4 border-blue-600">
-                <p className="text-[10px] font-bold uppercase text-slate-400 tracking-widest mb-1">Sewadar on quality check duty</p>
-                <p className="text-xl font-black text-blue-900 uppercase">{inspectorName || 'Unassigned'}</p>
-                </div>
-                <div className="bg-white p-5 border-l-4 border-slate-100">
-                <p className="text-[10px] font-bold uppercase text-slate-400 tracking-widest mb-1">Location</p>
-                <p className="text-xl font-black text-blue-900 uppercase">Canteen, Kirpal Bagh</p>
-                </div>
-            </div>
-
-            {/* Items Table */}
-            <table className="w-full mb-8 border-collapse">
-                <thead className="bg-slate-50">
-                <tr className="border-b-2 border-blue-900">
-                    <th className="py-3 px-2 text-left font-black uppercase text-[10px] tracking-widest w-1/3 text-slate-500">CATEGORY</th>
-                    <th className="py-3 px-2 text-left font-black uppercase text-[10px] tracking-widest w-1/4 text-slate-500">INCHARGE</th>
-                    <th className="py-3 px-2 text-center font-black uppercase text-[10px] tracking-widest w-24 text-slate-500">RATING</th>
-                    <th className="py-3 px-2 text-left font-black uppercase text-[10px] tracking-widest text-slate-500">REMARKS</th>
-                </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                {report.items.map((item) => (
-                    <tr key={item.id}>
-                    <td className="py-4 px-2">
-                        <p className="font-bold text-slate-900 text-sm uppercase tracking-tight leading-none">{item.category}</p>
-                        {item.subItem && (
-                        <p className="text-[9px] font-bold text-blue-600 mt-1 uppercase tracking-wide">Item: {item.subItem}</p>
-                        )}
-                    </td>
-                    <td className="py-4 px-2">
-                        <p className="text-[11px] font-black text-slate-600 uppercase">{item.counterIncharge || '—'}</p>
-                    </td>
-                    <td className="py-4 px-2">
-                        <div className="flex items-center justify-center h-full">
-                        {renderStatusBadge(item.status)}
-                        </div>
-                    </td>
-                    <td className="py-4 px-2 text-slate-600 text-[10px] font-medium italic">
-                        {item.remark || "Satisfactory"}
-                    </td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
-
-            {/* Footer Notes */}
-            <div className="mt-8 space-y-6">
-                <div className="bg-slate-50 p-5 border-l-4 border-amber-400">
-                <h4 className="text-[10px] font-black uppercase tracking-widest text-blue-900 mb-2 underline decoration-amber-400 underline-offset-4">ACTION LOG & ISSUES</h4>
-                <p className="text-xs text-slate-700 leading-relaxed font-medium min-h-[40px] whitespace-pre-wrap">
-                    {report.actionsTaken || "Standard quality check completed. All systems operational."}
-                </p>
-                </div>
-
-                <div className="flex justify-end pt-8">
-                <div className="text-right">
-                    <p className="text-[10px] font-bold uppercase text-slate-400 mb-2 tracking-widest">AUTHORIZED SIGNATORY</p>
-                    <div className="signature-font text-3xl text-blue-900 border-b-2 border-slate-200 px-8 pb-1 inline-block min-w-[200px] text-center">
-                    {inspectorName || 'Administrator'}
-                    </div>
-                </div>
-                </div>
-            </div>
-            </div>
-        </div>
-      </div>
-
       {/* Action Bar */}
-      <div className="fixed bottom-24 left-1/2 -translate-x-1/2 w-full max-w-sm px-6 flex flex-col gap-3 z-50">
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-sm px-6 flex flex-col gap-3 z-50">
         <button
           onClick={generatePDF}
           disabled={isDownloading}
-          className="group relative overflow-hidden bg-blue-900 text-white px-6 py-4 rounded-3xl font-bold shadow-2xl transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 w-full"
+          className="bg-[#2D3E7B] text-white px-6 py-4 rounded-2xl font-bold shadow-2xl transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 w-full"
         >
           {isDownloading ? <Loader2 className="animate-spin" size={20} /> : <FileDown size={20} />}
-          <span>Save PDF Report</span>
-          <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <span>Download PDF Report</span>
         </button>
 
         <button
           onClick={shareToWhatsApp}
-          className="bg-[#22C55E] text-white px-6 py-4 rounded-3xl font-bold shadow-2xl transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 w-full"
+          className="bg-[#22C55E] text-white px-6 py-4 rounded-2xl font-bold shadow-2xl transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 w-full"
         >
           <MessageCircle size={20} />
           <span>Send to WhatsApp</span>
         </button>
       </div>
 
+      <div className="w-full flex justify-center mt-4">
+        <div style={{ zoom: zoom }} className="origin-top">
+          <div
+            ref={sheetRef}
+            id="report-capture-area"
+            className="bg-white p-12 shadow-sm border border-slate-100 mx-auto text-slate-900 overflow-hidden text-[13px]"
+            style={{ width: '800px', minWidth: '800px' }}
+          >
+            {/* Header Section */}
+            <div className="mb-8 border-b-2 border-slate-100 pb-4">
+              <p className="text-[10px] italic text-slate-500 mb-6 leading-none">
+                With the blessings of H.H. Sant Rajinder Singh Ji Maharaj, Jalpan Services Quality Group, presents the quality report for {formattedDate}
+              </p>
+              <h1 className="text-3xl font-bold text-[#2D3E7B] mb-1">Jalpan Services Quality report</h1>
+              <p className="text-lg text-slate-500 font-medium tracking-tight">Quality Report Summary</p>
+            </div>
+
+            {/* 1. Duty Overview */}
+            <div className="mb-8">
+              <h2 className="text-[14px] font-bold mb-3">1. Inspection Overview</h2>
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-[#2D3E7B] text-white">
+                    <th className="py-2.5 px-4 text-left border border-slate-200 font-bold w-1/3">Metric</th>
+                    <th className="py-2.5 px-4 text-left border border-slate-200 font-bold">Details</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="py-2.5 px-4 border border-slate-200 font-medium bg-slate-50/50">Reporting Quality Group</td>
+                    <td className="py-2.5 px-4 border border-slate-200 font-semibold uppercase">Jalpan Services</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2.5 px-4 border border-slate-200 font-medium bg-slate-50/50">Sewadar on Duty</td>
+                    <td className="py-2.5 px-4 border border-slate-200 font-bold uppercase">{inspectorName}</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2.5 px-4 border border-slate-200 font-medium bg-slate-50/50">Location Covered</td>
+                    <td className="py-2.5 px-4 border border-slate-200">Canteen, Kirpal Bagh</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2.5 px-4 border border-slate-200 font-medium bg-slate-50/50">Inspection Timing</td>
+                    <td className="py-2.5 px-4 border border-slate-200 font-semibold uppercase">{report.completionTime || '--:--'}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* 2. Rating Distribution */}
+            <div className="mb-8">
+              <h2 className="text-[14px] font-bold mb-3">2. Rating Distribution</h2>
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-[#4155B1] text-white">
+                    <th className="py-2.5 px-4 text-left border border-slate-200 font-bold">Rating Level</th>
+                    <th className="py-2.5 px-4 text-left border border-slate-200 font-bold">Description</th>
+                    <th className="py-2.5 px-4 text-left border border-slate-200 font-bold">Item Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="py-2.5 px-4 border border-slate-200 font-bold text-amber-600">Perfect 🌟</td>
+                    <td className="py-2.5 px-4 border border-slate-200 italic">Exceptional quality and hygiene</td>
+                    <td className="py-2.5 px-4 border border-slate-200 font-bold">{perfectCount}</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2.5 px-4 border border-slate-200 font-bold text-blue-600">Good ✅</td>
+                    <td className="py-2.5 px-4 border border-slate-200 italic">Standard parameters satisfied</td>
+                    <td className="py-2.5 px-4 border border-slate-200 font-bold">{goodCount}</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2.5 px-4 border border-slate-200 font-bold text-red-600">Not Good ❌</td>
+                    <td className="py-2.5 px-4 border border-slate-200 italic">Requires immediate corrective action</td>
+                    <td className="py-2.5 px-4 border border-slate-200 font-bold text-red-600">{notGoodCount}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* 3. Detailed Quality Assessment */}
+            <div className="mb-8">
+              <h2 className="text-[14px] font-bold mb-3">3. Detailed Quality Assessment</h2>
+              <table className="w-full border-collapse text-[11.5px]">
+                <thead>
+                  <tr className="bg-[#24A171] text-white">
+                    <th className="py-2.5 px-2 text-left border border-slate-200 font-bold">Category</th>
+                    <th className="py-2.5 px-2 text-left border border-slate-200 font-bold">Specific Item</th>
+                    <th className="py-2.5 px-2 text-left border border-slate-200 font-bold">Incharge</th>
+                    <th className="py-2.5 px-2 text-left border border-slate-200 font-bold">Rating</th>
+                    <th className="py-2.5 px-2 text-left border border-slate-200 font-bold">Remarks</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {report.items.map((item) => (
+                    <tr key={item.id}>
+                      <td className="py-2.5 px-2 border border-slate-200 font-bold uppercase tracking-tight w-[180px]">{item.category}</td>
+                      <td className="py-2.5 px-2 border border-slate-200 font-medium uppercase text-blue-800">{item.subItem || 'N/A'}</td>
+                      <td className="py-2.5 px-2 border border-slate-200 uppercase">{item.counterIncharge || '—'}</td>
+                      <td className="py-2.5 px-2 border border-slate-200">{renderStatusSymbol(item.status)}</td>
+                      <td className="py-2.5 px-2 border border-slate-200 italic text-slate-500">{item.remark || 'Satisfactory'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* 4. Corrective Actions */}
+            <div className="mb-10">
+              <h2 className="text-[14px] font-bold mb-3">4. Reported Issues & Corrective Actions</h2>
+              <div className="border border-slate-200 p-6 bg-slate-50/80 min-h-[120px] whitespace-pre-wrap leading-relaxed text-slate-600 italic">
+                {report.actionsTaken || "No major incidents or corrective actions reported during this session. Standard procedures followed."}
+              </div>
+            </div>
+
+            {/* Footer Signatories */}
+            <div className="mt-16 flex justify-end">
+              <div className="w-64 text-center border-t border-slate-200 pt-3">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">AUTHORIZED SIGNATORY</p>
+                <p className="signature-font text-3xl text-[#2D3E7B]">{inspectorName}</p>
+                <p className="text-[10px] text-slate-400 mt-1 font-medium">{formattedDate}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

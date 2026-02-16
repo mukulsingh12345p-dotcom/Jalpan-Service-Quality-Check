@@ -4,10 +4,9 @@ import EntryForm from './components/EntryForm';
 import ReportSheet from './components/ReportSheet';
 import Dashboard from './components/Dashboard';
 import { getReportForDate } from './services/storageService';
-import { ClipboardList, BarChart3, PlusCircle, ArrowRight, ChefHat, Loader2 } from 'lucide-react';
+import { ClipboardList, BarChart3, PlusCircle, Loader2 } from 'lucide-react';
 
 const App: React.FC = () => {
-  const [hasEntered, setHasEntered] = useState(false);
   const [view, setView] = useState<ViewState>('form');
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -18,8 +17,6 @@ const App: React.FC = () => {
 
   // Fetch report when date or refresh trigger changes
   useEffect(() => {
-    if (!hasEntered) return;
-    
     const fetchData = async () => {
         setIsLoading(true);
         try {
@@ -32,55 +29,12 @@ const App: React.FC = () => {
         }
     };
     fetchData();
-  }, [selectedDate, refreshTrigger, hasEntered]);
-
-  const handleEnterApp = () => {
-      setHasEntered(true);
-      setSelectedDate(new Date().toISOString().split('T')[0]);
-      setView('form');
-  };
+  }, [selectedDate, refreshTrigger]);
 
   const handleSave = () => {
     setRefreshTrigger(p => p + 1);
     setView('report');
   };
-
-  if (!hasEntered) {
-    return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center p-8 relative overflow-hidden">
-        {/* Modern Background Accents */}
-        <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-blue-50 rounded-full blur-3xl opacity-60" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-96 h-96 bg-indigo-50 rounded-full blur-3xl opacity-60" />
-
-        <div className="z-10 flex flex-col items-center text-center max-w-sm w-full">
-          <div className="mb-10 relative">
-              <div className="bg-blue-600 p-8 rounded-[40px] shadow-2xl shadow-blue-200 rotate-6 transform transition-all hover:rotate-0 duration-500">
-                 <ChefHat className="text-white w-20 h-20" />
-              </div>
-          </div>
-          
-          <h1 className="text-4xl font-black text-slate-900 mb-2 uppercase tracking-tight">
-            Jalpan <span className="text-blue-600">Services</span>
-          </h1>
-          <p className="text-slate-500 text-lg mb-12 font-medium">
-            Next-gen food quality <br/>& hygiene tracking.
-          </p>
-
-          <button 
-            onClick={handleEnterApp}
-            className="w-full py-5 bg-slate-900 text-white font-black text-xl rounded-3xl shadow-2xl shadow-slate-200 hover:bg-slate-800 transition-all transform active:scale-95 flex items-center justify-center gap-4"
-          >
-            Get Started
-            <ArrowRight className="w-6 h-6" />
-          </button>
-          
-          <p className="mt-12 text-slate-300 font-bold text-[10px] uppercase tracking-[0.3em]">
-            Precision Standards • v2.0
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-slate-50">
