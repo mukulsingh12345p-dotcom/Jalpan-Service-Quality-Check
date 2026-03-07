@@ -118,8 +118,9 @@ const ReportSheet: React.FC<ReportSheetProps> = ({ report }) => {
     report.items.forEach(item => {
       message += `${statusEmoji(item.status)} *${item.category}*${item.subItem ? ` (${item.subItem})` : ''}\n`;
       message += `   👤 _Incharge: ${item.counterIncharge || 'N/A'}_\n`;
-      if (item.status === Status.NOT_GOOD && item.remark) {
-        message += `   ⚠️ _Issue: ${item.remark}_\n`;
+      if (item.remark) {
+        const remarkEmoji = item.status === Status.NOT_GOOD ? '⚠️' : '📝';
+        message += `   ${remarkEmoji} _Note: ${item.remark}_\n`;
       }
     });
 

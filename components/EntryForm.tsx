@@ -364,22 +364,25 @@ const EntryForm: React.FC<EntryFormProps> = ({ report, onSave, selectedDate }) =
 
               {renderSpecificInputs(item, index)}
 
-              {item.status === Status.NOT_GOOD && (
-                  <div className="mt-4 animate-in slide-in-from-top-2 duration-200">
-                      <div className="flex items-center gap-2 mb-2 px-1">
-                          <AlertTriangle size={14} className="text-red-500" />
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-red-500">Issue Details (Required)</span>
-                      </div>
-                      <input
-                          type="text"
-                          placeholder="What exactly is not good? (e.g. Too salty, Cold, Spilled)"
-                          value={item.remark}
-                          onChange={(e) => updateItem(index, 'remark', e.target.value)}
-                          className="w-full bg-red-50 border-2 border-red-100 rounded-xl px-4 py-3 text-sm text-red-900 outline-none focus:border-red-500 placeholder:text-red-300"
-                          autoFocus
-                      />
+              <div className="mt-4 animate-in slide-in-from-top-2 duration-200">
+                  <div className="flex items-center gap-2 mb-2 px-1">
+                      <AlertTriangle size={14} className={item.status === Status.NOT_GOOD ? "text-red-500" : "text-slate-400"} />
+                      <span className={`text-[10px] font-bold uppercase tracking-wider ${item.status === Status.NOT_GOOD ? "text-red-500" : "text-slate-400"}`}>
+                          {item.status === Status.NOT_GOOD ? "Issue Details (Required)" : "Problem / Observation (Optional)"}
+                      </span>
                   </div>
-              )}
+                  <input
+                      type="text"
+                      placeholder={item.status === Status.NOT_GOOD ? "What exactly is not good? (e.g. Too salty, Cold)" : "Any minor problem or observation..."}
+                      value={item.remark || ''}
+                      onChange={(e) => updateItem(index, 'remark', e.target.value)}
+                      className={`w-full border-2 rounded-xl px-4 py-3 text-sm outline-none transition-all ${
+                          item.status === Status.NOT_GOOD 
+                          ? "bg-red-50 border-red-100 text-red-900 focus:border-red-500 placeholder:text-red-300" 
+                          : "bg-slate-50 border-slate-50 text-slate-700 focus:border-blue-500 focus:bg-white placeholder:text-slate-300"
+                      }`}
+                  />
+              </div>
             </div>
           );
         })}
